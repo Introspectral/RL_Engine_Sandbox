@@ -1,4 +1,7 @@
+using RL_Engine_Sandbox.Backend.ECS.Component;
+using RL_Engine_Sandbox.Backend.ECS.Entity;
 using RL_Engine_Sandbox.Backend.ECS.Interface;
+using RL_Engine_Sandbox.Backend.ECS.Manager;
 
 namespace RL_Engine_Sandbox.Backend.ECS.Map;
 
@@ -7,8 +10,8 @@ namespace RL_Engine_Sandbox.Backend.ECS.Map;
         public int Width { get; }
         public int Height { get; }
         public Tile[,] Tiles { get; }
+        public List<Entity.Entity> Entities { get; }
         private List<Rectangle> _rooms = new List<Rectangle>();
-        // Parallel list to track whether each room is connected.
         private List<bool> _roomConnected = new List<bool>();
         private Random _random = new Random();
         
@@ -17,135 +20,157 @@ namespace RL_Engine_Sandbox.Backend.ECS.Map;
             Width = width;
             Height = height;
             Tiles = new Tile[width, height];
+            Entities = new List<Entity.Entity>();
             InitializeMap();
         }
         
         private void InitializeMap()
         {
-            // 1. Fill the map with empty tiles.
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                Tiles[x, y] = new Tile(
-                    new Point(x, y),
-                    isWalkable: false,
-                    new ColoredGlyph(Color.Black, Color.Black, ' '),
-                    TileType.Empty
-                    );
-                }
-            }
-            
-            // 2. Generate rooms.
-            // Determine a target room count between 3 and 7.
             int targetRoomCount = _random.Next(3, 8);
             int attempts = 0;
             int maxAttempts = 50;
             int minRoomSize = 4;
             int maxRoomSize = 10;
-            
-            // Use a loop so we can try repeatedly until we reach the target or max attempts.
-            while (_rooms.Count < targetRoomCount && attempts < maxAttempts)
+
+            FillWithEmptyTiles();
+            CalculateRoomCount();
+            ConnectRoomsWithCorridors();
+            PlaceWallsAroundFloors();
+            PopulateMapWithEntities();
+
+            void FillWithEmptyTiles()
             {
-                attempts++;
-                int roomWidth = _random.Next(minRoomSize, maxRoomSize + 1);
-                int roomHeight = _random.Next(minRoomSize, maxRoomSize + 1);
-                // Ensure room is at least 3 tiles away from map edges.
-                int roomX = _random.Next(3, Width - roomWidth - 3);
-                int roomY = _random.Next(3, Height - roomHeight - 3);
-                Rectangle newRoom = new Rectangle(roomX, roomY, roomWidth, roomHeight);
-                
-                // Check for overlap with a buffer of 2 tiles.
-                bool overlaps = false;
-                foreach (var other in _rooms)
+                for (int x = 0; x < Width; x++)
                 {
-                    var inflatedOther = new Rectangle(other.X - 2, other.Y - 2, other.Width + 4, other.Height + 4);
-                    if (newRoom.Intersects(inflatedOther))
-                    {
-                        overlaps = true;
-                        break;
-                    }
-                }
-                if (!overlaps)
-                {
-                    CarveRoom(newRoom);
-                    _rooms.Add(newRoom);
-                    _roomConnected.Add(false);
-                }
-            }
-            
-            // 3. Connect rooms with corridors.
-            // First pass: Connect each room sequentially.
-            for (int i = 1; i < _rooms.Count; i++)
-            {
-                if (CreateCorridor(_rooms[i - 1], _rooms[i]))
-                {
-                    _roomConnected[i - 1] = true;
-                    _roomConnected[i] = true;
-                }
-                else
-                {
-                    // Fallback: force a corridor using the horizontal-then-vertical candidate.
-                    List<Point> fallbackPath = GetHorizontalThenVerticalPath(_rooms[i - 1].Center, _rooms[i].Center);
-                    CarvePath(fallbackPath);
-                    _roomConnected[i - 1] = true;
-                    _roomConnected[i] = true;
-                }
-            }
-            
-            // Second pass: Ensure that every room is connected.
-            for (int i = 0; i < _rooms.Count; i++)
-            {
-                if (_roomConnected[i])
-                    continue;
-                
-                // Find the nearest room (by center-to-center distance).
-                Rectangle current = _rooms[i];
-                double bestDist = double.MaxValue;
-                int bestIndex = -1;
-                for (int j = 0; j < _rooms.Count; j++)
-                {
-                    if (i == j)
-                        continue;
-                    double dist = Distance(current.Center, _rooms[j].Center);
-                    if (dist < bestDist)
-                    {
-                        bestDist = dist;
-                        bestIndex = j;
-                    }
-                }
-                if (bestIndex >= 0)
-                {
-                    if (CreateCorridor(current, _rooms[bestIndex]))
-                    {
-                        _roomConnected[i] = true;
-                        _roomConnected[bestIndex] = true;
-                    }
-                    else
-                    {
-                        // Fallback corridor if the candidate paths intersect another room.
-                        List<Point> fallbackPath = GetHorizontalThenVerticalPath(current.Center, _rooms[bestIndex].Center);
-                        CarvePath(fallbackPath);
-                        _roomConnected[i] = true;
-                        _roomConnected[bestIndex] = true;
-                    }
-                }
-            }
-            
-            // 4. Place walls around floors.
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (Tiles[x, y].Glyph.Glyph == ' ' && HasAdjacentFloor(x, y))
+                    for (int y = 0; y < Height; y++)
                     {
                         Tiles[x, y] = new Tile(
                             new Point(x, y),
-                            isWalkable: false,
-                            new ColoredGlyph(Color.Gray, Color.Black, '#'),
-                            TileType.Wall
+                            isWalkable: true,
+                            new ColoredGlyph(Color.Black, Color.Black, ' '),
+                            TileType.Empty
                         );
                     }
+                }
+            }
+            void CalculateRoomCount()
+            {
+                while (_rooms.Count < targetRoomCount && attempts < maxAttempts)
+                {
+                    attempts++;
+                    int roomWidth = _random.Next(minRoomSize, maxRoomSize + 1);
+                    int roomHeight = _random.Next(minRoomSize, maxRoomSize + 1);
+                    // Ensure room is at least 3 tiles away from map edges.
+                    int roomX = _random.Next(3, Width - roomWidth - 3);
+                    int roomY = _random.Next(3, Height - roomHeight - 3);
+                    Rectangle newRoom = new Rectangle(roomX, roomY, roomWidth, roomHeight);
+                
+                    // Check for overlap with a buffer of 2 tiles.
+                    bool overlaps = false;
+                    foreach (var other in _rooms)
+                    {
+                        var inflatedOther = new Rectangle(other.X - 2, other.Y - 2, other.Width + 4, other.Height + 4);
+                        if (newRoom.Intersects(inflatedOther))
+                        {
+                            overlaps = true;
+                            break;
+                        }
+                    }
+                    if (!overlaps)
+                    {
+                        CarveRoom(newRoom);
+                        _rooms.Add(newRoom);
+                        _roomConnected.Add(false);
+                    }
+                }
+            }
+            void ConnectRoomsWithCorridors()
+            {
+                for (int i = 1; i < _rooms.Count; i++)
+                {
+                    if (CreateCorridor(_rooms[i - 1], _rooms[i]))
+                    {
+                        _roomConnected[i - 1] = true;
+                        _roomConnected[i] = true;
+                    }
+                    else
+                    {
+                        // Fallback: force a corridor using the horizontal-then-vertical candidate.
+                        List<Point> fallbackPath = GetHorizontalThenVerticalPath(_rooms[i - 1].Center, _rooms[i].Center);
+                        CarvePath(fallbackPath);
+                        _roomConnected[i - 1] = true;
+                        _roomConnected[i] = true;
+                    }
+                }
+                // Second pass: Ensure that every room is connected.
+
+                for (int i = 0; i < _rooms.Count; i++)
+                {
+                    if (_roomConnected[i])
+                        continue;
+                
+                    // Find the nearest room (by center-to-center distance).
+                    Rectangle current = _rooms[i];
+                    double bestDist = double.MaxValue;
+                    int bestIndex = -1;
+                    for (int j = 0; j < _rooms.Count; j++)
+                    {
+                        if (i == j)
+                            continue;
+                        double dist = Distance(current.Center, _rooms[j].Center);
+                        if (dist < bestDist)
+                        {
+                            bestDist = dist;
+                            bestIndex = j;
+                        }
+                    }
+                    if (bestIndex >= 0)
+                    {
+                        if (CreateCorridor(current, _rooms[bestIndex]))
+                        {
+                            _roomConnected[i] = true;
+                            _roomConnected[bestIndex] = true;
+                        }
+                        else
+                        {
+                            // Fallback corridor if the candidate paths intersect another room.
+                            List<Point> fallbackPath = GetHorizontalThenVerticalPath(current.Center, _rooms[bestIndex].Center);
+                            CarvePath(fallbackPath);
+                            _roomConnected[i] = true;
+                            _roomConnected[bestIndex] = true;
+                        }
+                    }
+                }
+            }
+            void PlaceWallsAroundFloors()
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    for (int y = 0; y < Height; y++)
+                    {
+                        if (Tiles[x, y].Glyph.Glyph == ' ' && HasAdjacentFloor(x, y))
+                        {
+                            Tiles[x, y] = new Tile(
+                                new Point(x, y),
+                                isWalkable: false,
+                                new ColoredGlyph(Color.Gray, Color.Black, '#'),
+                                TileType.Wall
+                            );
+                        }
+                    }
+                }
+            }
+            void PopulateMapWithEntities()
+            {
+                foreach (var entity in Entities)
+                {
+                    var position = new ComponentManager().GetComponent<PositionComponent>(entity.Id);
+                    if (position == null)
+                        continue;
+                    int x = position.X;
+                    int y = position.Y;
+                    if (x < 0 || x >= Width || y < 0 || y >= Height) 
+                        continue;
                 }
             }
         }

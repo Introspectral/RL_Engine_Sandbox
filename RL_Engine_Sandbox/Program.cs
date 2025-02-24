@@ -1,10 +1,13 @@
 ﻿#region Using Statements
 
 using Microsoft.Extensions.DependencyInjection;
+using RL_Engine_Sandbox.Backend;
 using RL_Engine_Sandbox.Backend.ECS.Entity;
 using RL_Engine_Sandbox.Backend.ECS.Interface;
 using RL_Engine_Sandbox.Backend.ECS.Manager;
+using RL_Engine_Sandbox.Backend.ECS.Map;
 using RL_Engine_Sandbox.Backend.ECS.Systems;
+using RL_Engine_Sandbox.Backend.ECS.Systems.Core;
 using RL_Engine_Sandbox.Frontend;
 using RL_Engine_Sandbox.Frontend.Interface;
 using RL_Engine_Sandbox.Frontend.Manager.UiManager;
@@ -16,23 +19,29 @@ using SadConsole.Configuration;
 namespace RL_Engine_Sandbox;
 class Program {
     static void Main(string[] args) {
-        // Set the width and height of the game
+
         int width = 150;
         int height = 45;
-        // Setup Dependency Injection
+
         var services = new ServiceCollection()
             .AddSingleton<IEventManager, EventManager>()
             .AddSingleton<IEntityManager, EntityManager>()
             .AddSingleton<IComponentManager, ComponentManager>()
-            .AddSingleton<IRenderingSystem, RenderingSystem>()
             .AddSingleton<IMovementSystem, MovementSystem>()
             .AddSingleton<IRenderingSystem, RenderingSystem>()
-            .AddSingleton<IUiManager, UiManager>()
-            .AddSingleton<EntityBuilder>()
-            .AddSingleton<EntityFactory>();
+            .AddSingleton<ICollisionSystem, CollisionSystem>()
+            .AddSingleton<IEntityFactory, EntityFactory>()
+            .AddSingleton<IUiManager, UiManager>();
+            
+
         
-        // Build the service provider
         var serviceProvider = services.BuildServiceProvider();
+        var componentManager = serviceProvider.GetRequiredService<IComponentManager>();
+
+        
+        ServiceLocator.Register<IEntityFactory>(serviceProvider.GetRequiredService<IEntityFactory>());
+        ServiceLocator.Register<IComponentManager>(componentManager);
+        
         
         // Setup SadConsole Settings
         Settings.WindowTitle = "LikeRogue";
@@ -44,8 +53,6 @@ class Program {
                 serviceProvider.GetRequiredService<IEntityManager>(),
                 serviceProvider.GetRequiredService<IComponentManager>(),
                 serviceProvider.GetRequiredService<IUiManager>(),
-                serviceProvider.GetRequiredService<EntityBuilder>(),
-                serviceProvider.GetRequiredService<EntityFactory>(),
                 width, height))
             .OnStart(StartUp);
         

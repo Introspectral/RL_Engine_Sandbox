@@ -3,7 +3,7 @@ using RL_Engine_Sandbox.Backend.ECS.Interface;
 using SadConsole.Input;
 using Direction = RL_Engine_Sandbox.Backend.ECS.Event.Direction;
 
-namespace RL_Engine_Sandbox.Backend.ECS.Systems
+namespace RL_Engine_Sandbox.Backend.ECS.Systems.Core
 {
     internal class InputHandler {
         private readonly long _playerId;

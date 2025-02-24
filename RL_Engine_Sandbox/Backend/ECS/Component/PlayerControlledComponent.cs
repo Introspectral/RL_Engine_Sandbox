@@ -6,8 +6,7 @@ public class PlayerControlledComponent : IComponents
 {
     public bool IsPlayer { get; set; }
     
-    public PlayerControlledComponent(bool isPlayer)
-    {
+    public PlayerControlledComponent(bool isPlayer){
         IsPlayer = isPlayer;
     }
 

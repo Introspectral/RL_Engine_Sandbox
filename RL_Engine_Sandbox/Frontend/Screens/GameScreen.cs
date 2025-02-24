@@ -19,15 +19,12 @@ namespace RL_Engine_Sandbox.Frontend.Screens
             _uiManager = uiManager;
             
             Children.Add(GameConsole);
-            // Attach UI elements once during initialization.
             AttachUiElements();
         }
         
         private void AttachUiElements()
         {
-            // Clear any existing children (should be empty at this point).
             GameConsole.Children.Clear();
-            // Attach each UI element's console as a child.
             foreach (var uiElement in _uiManager.UiElements.Values)
             {
                 GameConsole.Children.Add(uiElement.GetConsole());

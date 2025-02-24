@@ -1,6 +1,8 @@
 namespace RL_Engine_Sandbox.Backend.ECS.Interface;
 
-public class ICollisionSystem
+public interface ICollisionSystem
 {
-    
+  bool CollisionCheck(long entityId1, int x, int y);
+
+
 }

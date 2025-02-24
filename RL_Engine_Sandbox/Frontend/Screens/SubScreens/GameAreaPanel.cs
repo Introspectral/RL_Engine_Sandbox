@@ -49,7 +49,7 @@ namespace RL_Engine_Sandbox.Frontend.Screens.SubScreens
             };
 
             // Create the content console sized to fit inside the border.
-            _contentConsole = new Console(width - 2, height - 2)
+            _contentConsole = new Console(width, height)
             {
                 Position = new Point(1, 1),
                 IsEnabled = false,
@@ -110,9 +110,9 @@ namespace RL_Engine_Sandbox.Frontend.Screens.SubScreens
             };
 
             // Recreate the content console.
-            _contentConsole = new Console(width - 2, height - 2)
+            _contentConsole = new Console(width, height)
             {
-                Position = new Point(1, 1),
+                Position = new Point(0, 0),
                 IsEnabled = false,
                 IsFocused = false,
                 IsVisible = true,

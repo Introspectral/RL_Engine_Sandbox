@@ -1,4 +1,5 @@
 using RL_Engine_Sandbox.Backend.ECS.Component;
+using RL_Engine_Sandbox.Backend.ECS.Entity;
 using RL_Engine_Sandbox.Backend.ECS.Interface;
 
 namespace RL_Engine_Sandbox.Frontend
@@ -7,16 +8,18 @@ namespace RL_Engine_Sandbox.Frontend
         private readonly IEntityManager _entityManager;
         private readonly IComponentManager _componentManager;
         private readonly Console _renderingConsole;
+        public List<Entity> EntitiesToRender { get; set; }
         
         public RenderingSystem(IEntityManager entityManager, IComponentManager componentManager, Console renderingConsole) {
             _entityManager = entityManager;
             _componentManager = componentManager;
             _renderingConsole = renderingConsole;
+            EntitiesToRender = new List<Entity>();
         }
         
         public void Update() {
-            _renderingConsole.Clear(); // Clear previous frame
-            foreach (var entity in _entityManager.GetAllEntities()) {
+            _renderingConsole.Clear(); 
+            foreach (var entity in EntitiesToRender) {
                 var position = _componentManager.GetComponent<PositionComponent>(entity.Id);
                 var render = _componentManager.GetComponent<RenderingComponent>(entity.Id);
                 
@@ -29,7 +32,7 @@ namespace RL_Engine_Sandbox.Frontend
                     render.Glyph.Foreground,
                     render.Glyph.Background);
             }
-            _renderingConsole.IsDirty = true; // Mark for refresh
+            _renderingConsole.IsDirty = true; 
         }
 
     }

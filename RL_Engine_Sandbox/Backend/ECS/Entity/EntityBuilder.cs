@@ -3,13 +3,13 @@ using RL_Engine_Sandbox.Backend.ECS.Interface;
 
 namespace RL_Engine_Sandbox.Backend.ECS.Entity;
 
-public class EntityBuilder
+public class EntityBuilder : IEntityBuilder
 {
     private readonly IEntityManager _entityManager;
     private readonly IComponentManager _componentManager;
     private readonly Entity _entity;
     
-    public EntityBuilder(IEntityManager entityManager, IComponentManager componentManager)
+    public EntityBuilder(IEntityManager entityManager, IComponentManager componentManager) 
     {
         _entityManager = entityManager;
         _componentManager = componentManager;

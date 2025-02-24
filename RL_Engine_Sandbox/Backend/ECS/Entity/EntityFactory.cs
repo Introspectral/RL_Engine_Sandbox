@@ -4,7 +4,7 @@ using RL_Engine_Sandbox.Backend.ECS.Interface;
 
 namespace RL_Engine_Sandbox.Backend.ECS.Entity;
 
-public class EntityFactory
+public class EntityFactory : IEntityFactory
 {
     private readonly IEntityManager _entityManager;
     private readonly IComponentManager _componentManager;
