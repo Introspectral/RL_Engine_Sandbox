@@ -1,0 +1,15 @@
+﻿
+ToDo
+
+- [x] Add base for the ECS system.
+- [x] Add Input System.
+- [x] Add Rendering System.
+- [x] Add Movement System.
+- [ ] Add Collision System.
+- [ ] Add Combat System.
+- [ ] Add Interaction System (e.g. picking up items, opening doors).
+- [ ] Add AI System.
+- [ ] Add Pathfinding System.
+- [ ] Add EntityBuilder System.
+- [ ] Add Entity Destruction System that cleans up entity and its components. (Events need to be unsubscribed at removal)
+          
