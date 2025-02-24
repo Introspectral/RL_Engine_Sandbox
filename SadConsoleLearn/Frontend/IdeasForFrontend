@@ -1,0 +1,31 @@
+* Separate UI Components
+Currently, GameScreen handles multiple roles—managing the game area, character info, and message log. 
+Extracting each into its own dedicated class or component can help isolate concerns. 
+For example, a dedicated MessageLog class could encapsulate all logic related to displaying and updating messages.
+
+* Adopt a Layout Manager
+Instead of hardcoding positions and dimensions (as seen in GameScreen and RootScreen), 
+consider creating or adopting a layout manager that dynamically arranges UI elements. 
+This would make the UI more responsive to changes in screen size and help maintain consistency across different game states.
+
+* Screen and State Management
+Right now, the RootScreen simply adds the GameLoop, 
+and the GameLoop takes over most responsibilities. Implementing a dedicated screen or state manager 
+can provide a more flexible way to transition between different screens (e.g., main menu, in-game, pause) 
+and handle overlays or pop-ups in a structured manner.
+
+* Decouple Input from UI
+Although input is already handled separately in the InputHandler, 
+consider ensuring that UI input (like interacting with panels) is managed by a separate layer or handler. 
+This will help keep the game logic (e.g., movement and events) isolated from UI interaction details.
+
+* Enhance Dependency Injection for UI
+You’re already using DI for the backend in Program.cs. 
+Extending this pattern to UI components will allow for more flexible swapping of UI elements, 
+easier testing, and better decoupling between UI and game logic.
+
+* Event Handling and UI Updates
+Right now, UI elements like the message log subscribe directly to events in their constructors. 
+Consider centralizing event subscriptions for UI elements so that all UI updates occur through a 
+well-defined pipeline or manager. This can help avoid scattered subscriptions and simplify 
+maintenance when event logic changes.

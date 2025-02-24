@@ -1,0 +1,33 @@
+﻿ToDo
+
+Fundamentals and Infrastructure
+-[x] Set up a foundational ECS system that can: 
+    -[x] Entity Manager - Add, Remove, GetById, GetAll.
+        -[x] Interface to support in dependency injection
+    -[x] Component Manager - Add, Remove, Get.
+        -[x] Interface to support in dependency injection
+    -[x] Event System - Subscribe, Unsubscribe, Publish. //OnetimeSub, Queue-events.
+        -[x] Interface to support in dependency injection
+    -[x] Entities, Components and Events to go with. 
+
+I do believe we have this system up and running now. 
+I will likely need to write some tests to make sure everything is working as expected.
+but for now, I will move on to the next system.
+
+Input, Movement and Rendering.
+-[] Set up functional structure for handling input, process input and render to screen.
+    -[x] InputSystem
+        -[x] ProcessInput using SadConsole's KeyboardState.
+        -[x] Publish events for movement.
+    -[x] MovementSystem
+        -[x] Subscribe to movement events.
+        -[x] Process movement events. (Changing position of entities via componentManager)       
+    -[] RenderSystem
+        -() :FrontEnd: Make sure the screen setup is correct.
+        -[x] Subscribe to render events.
+        -[x] Process render events. 
+        
+        
+
+
+    
