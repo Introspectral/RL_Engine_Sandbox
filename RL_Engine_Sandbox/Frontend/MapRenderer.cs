@@ -15,7 +15,6 @@ public class MapRenderer
 
     public void Render()
     {
-        // Loop through each tile in the map and render it.
         for (int x = 0; x < _dungeonMap.Width; x++)
         {
             for (int y = 0; y < _dungeonMap.Height; y++)
@@ -24,6 +23,6 @@ public class MapRenderer
                 _console.SetGlyph(x, y, tile.Glyph.GlyphCharacter, tile.Glyph.Foreground, tile.Glyph.Background);
             }
         }
-        _console.IsDirty = true; // Ensure the console refreshes.
+        _console.IsDirty = true; 
     }
 }

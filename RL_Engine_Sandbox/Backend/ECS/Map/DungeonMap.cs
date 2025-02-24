@@ -8,7 +8,6 @@ namespace RL_Engine_Sandbox.Backend.ECS.Map;
         public int Height { get; }
         public Tile[,] Tiles { get; }
         private List<Rectangle> _rooms = new List<Rectangle>();
-        // Parallel list to track whether each room is connected.
         private List<bool> _roomConnected = new List<bool>();
         private Random _random = new Random();
         
@@ -37,7 +36,7 @@ namespace RL_Engine_Sandbox.Backend.ECS.Map;
             }
             
             // 2. Generate rooms.
-            // Determine a target room count between 3 and 7.
+            // Determine a target room count between 2 values
             int targetRoomCount = _random.Next(3, 8);
             int attempts = 0;
             int maxAttempts = 50;

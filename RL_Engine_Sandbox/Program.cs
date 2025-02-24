@@ -16,10 +16,10 @@ using SadConsole.Configuration;
 namespace RL_Engine_Sandbox;
 class Program {
     static void Main(string[] args) {
-        // Set the width and height of the game
+
         int width = 150;
         int height = 45;
-        // Setup Dependency Injection
+
         var services = new ServiceCollection()
             .AddSingleton<IEventManager, EventManager>()
             .AddSingleton<IEntityManager, EntityManager>()
@@ -31,7 +31,6 @@ class Program {
             .AddSingleton<EntityBuilder>()
             .AddSingleton<EntityFactory>();
         
-        // Build the service provider
         var serviceProvider = services.BuildServiceProvider();
         
         // Setup SadConsole Settings

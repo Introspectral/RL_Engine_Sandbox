@@ -15,3 +15,4 @@ public class PlayerInfo {
     public int Gold { get; set; }
 }
 
+// This class is used to fetch player information to easily display it in the UI

@@ -15,7 +15,7 @@ namespace RL_Engine_Sandbox.Frontend
         }
         
         public void Update() {
-            _renderingConsole.Clear(); // Clear previous frame
+            _renderingConsole.Clear(); 
             foreach (var entity in _entityManager.GetAllEntities()) {
                 var position = _componentManager.GetComponent<PositionComponent>(entity.Id);
                 var render = _componentManager.GetComponent<RenderingComponent>(entity.Id);
@@ -29,7 +29,7 @@ namespace RL_Engine_Sandbox.Frontend
                     render.Glyph.Foreground,
                     render.Glyph.Background);
             }
-            _renderingConsole.IsDirty = true; // Mark for refresh
+            _renderingConsole.IsDirty = true; 
         }
 
     }

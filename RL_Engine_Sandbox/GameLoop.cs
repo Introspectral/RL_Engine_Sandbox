@@ -26,6 +26,7 @@ namespace RL_Engine_Sandbox
         private int _height;
         
         public GameLoop(
+
             IEventManager eventManager, 
             IEntityManager entityManager, 
             IComponentManager componentManager, 
@@ -46,7 +47,8 @@ namespace RL_Engine_Sandbox
             var gameAreaPanelConfig = new UiLayoutConfig(0f, 0f, 120f / 150f, 35f / 45f);
             var characterSheetPanelConfig = new UiLayoutConfig(120f / 150f, 0f, 30f / 150f, 45f / 45f);
             var messageLogPanelConfig = new UiLayoutConfig(0f, 35f / 45f, 120f / 150f, 10f / 45f);
-            // Create a player entity and add it to the EntityManager.
+
+            // Create a test entities and add it to the EntityManager.
             var stairsUp = entityFactory.CreateStairUp();
             var stairsDown = entityFactory.CreateStairDown();
             var (player, playerEntityInfo) = entityFactory.CreatePlayer();
@@ -72,6 +74,7 @@ namespace RL_Engine_Sandbox
                 _uiManager);
             Children.Add(_gameScreen);
             Game.Instance.FocusedScreenObjects.Set(this);
+
             //var caveMap = new CaveMap(_gameScreen.GameConsole.Width, _gameScreen.GameConsole.Height);
             var dungeonMap = new DungeonMap(_gameScreen.GameConsole.Width, _gameScreen.GameConsole.Height);
             _mapRenderer =new MapRenderer(dungeonMap, _gameScreen.GameConsole);
@@ -79,7 +82,6 @@ namespace RL_Engine_Sandbox
             // Retrieve the GameAreaPanel's console for the RenderingSystem.
             var gameAreaConsole = _uiManager.GetUiElement("gameAreaPanel");
             _renderingSystem = new RenderingSystem(entityManager, componentManager, gameAreaConsole.GetContentConsole());
-
             _inputHandler = new InputHandler(eventManager, player.Id);
             _movementSystem = new MovementSystem(entityManager, componentManager, eventManager);
         }
