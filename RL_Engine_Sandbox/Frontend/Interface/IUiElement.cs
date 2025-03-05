@@ -1,6 +1,7 @@
 namespace RL_Engine_Sandbox.Frontend.Interface;
 
-public interface IUiElement {
+public interface IUiElement
+{
     public Console GetConsole();
     public Console GetContentConsole();
     public void Initialize();

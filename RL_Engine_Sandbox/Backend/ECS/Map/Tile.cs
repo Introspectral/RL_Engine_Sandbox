@@ -1,37 +1,33 @@
 using Color = SadRogue.Primitives.Color;
 
-namespace RL_Engine_Sandbox.Backend.ECS.Map
+namespace RL_Engine_Sandbox.Backend.ECS.Map;
+
+public enum TileType
 {
-    public enum TileType {
-        Empty,
-        Wall,
-        Floor,
+    Empty,
+    Wall,
+    Floor
+}
+
+public class Tile(
+    Point position,
+    bool isWalkable,
+    bool isExplored,
+    bool isInFov,
+    ColoredGlyph glyph,
+    TileType tileType)
+{
+    public Tile(Point position, bool isWalkable, bool isExplored, bool isInFov, char glyph, Color foreground,
+        Color background, TileType tileType)
+        : this(position, isWalkable, isExplored, isInFov, new ColoredGlyph(foreground, background, glyph), tileType)
+    {
     }
 
-    public class Tile {
-        public Point Position { get; }
-        public bool IsWalkable { get; }
-        public ColoredGlyph Glyph { get; }
-        public TileType TileType { get; }
+    public Point Position { get; } = position;
+    public bool IsWalkable { get; } = isWalkable;
+    public bool IsExplored { get; set; } = isExplored;
+    public bool IsInFov { get; set; } = isInFov;
 
-        public Tile(Point position, bool isWalkable, ColoredGlyph glyph, TileType tileType) {
-            Position = position;
-            IsWalkable = isWalkable;
-            Glyph = glyph;
-            TileType = tileType;
-        }
-         public Tile(Point position, bool isWalkable, char glyph, Color foreground, Color background, TileType tileType)
-            : this(position, isWalkable, new ColoredGlyph(foreground, background, glyph), tileType) {}
-    }
-
-    public static class TileFactory {
-        public static Tile Create(Point position, TileType type, char? customGlyph = null) {
-            return type switch {
-                TileType.Empty => new Tile(position, true, ' ',Color.Black, Color.Black, type),
-                TileType.Wall => new Tile(position, false, '#', Color.Gray, Color.Black, type),
-                TileType.Floor => new Tile(position, true, '.', Color.LightGray, Color.Black, type),
-                _ => new Tile(position, false, '?', Color.Magenta, Color.Black, type)
-            };
-        }
-    }
+    public ColoredGlyph Glyph { get; } = glyph;
+    public TileType TileType { get; } = tileType;
 }

@@ -1,5 +1,5 @@
 ﻿namespace RL_Engine_Sandbox.Backend.ECS.Interface;
 
-public interface IComponents {}
-
-
+public interface IComponents
+{
+}

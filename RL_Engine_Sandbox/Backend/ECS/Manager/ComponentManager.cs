@@ -10,7 +10,7 @@ public class ComponentManager : IComponentManager
     {
         if (!_entityComponents.ContainsKey(entityId))
             _entityComponents[entityId] = new List<IComponents>();
-            
+
         _entityComponents[entityId].Add(component);
     }
 
@@ -19,10 +19,20 @@ public class ComponentManager : IComponentManager
         _entityComponents[entityId]?.Remove(component);
     }
 
+    public void RemoveAllComponents(long entityId)
+    {
+        _entityComponents.Remove(entityId);
+    }
+
     public T? GetComponent<T>(long entityId) where T : class, IComponents
     {
-        return (_entityComponents.TryGetValue(entityId, out var components)
+        return _entityComponents.TryGetValue(entityId, out var components)
             ? components.OfType<T>().FirstOrDefault()
-            : null);
+            : null;
     }
+    public bool HasComponent<T>(long entityId) where T : class, IComponents
+    {
+        return _entityComponents.TryGetValue(entityId, out var components) && components.OfType<T>().Any();
+    }
+
 }

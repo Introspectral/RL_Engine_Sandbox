@@ -1,65 +1,74 @@
-﻿#region Using Statements
-
-using Microsoft.Extensions.DependencyInjection;
-using RL_Engine_Sandbox.Backend;
-using RL_Engine_Sandbox.Backend.ECS.Entity;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RL_Engine_Sandbox.Backend.ECS.Entities;
 using RL_Engine_Sandbox.Backend.ECS.Interface;
 using RL_Engine_Sandbox.Backend.ECS.Manager;
 using RL_Engine_Sandbox.Backend.ECS.Map;
 using RL_Engine_Sandbox.Backend.ECS.Systems;
-using RL_Engine_Sandbox.Backend.ECS.Systems.Core;
-using RL_Engine_Sandbox.Frontend;
 using RL_Engine_Sandbox.Frontend.Interface;
-using RL_Engine_Sandbox.Frontend.Manager.UiManager;
-using RL_Engine_Sandbox.Frontend.Screens;
+using RL_Engine_Sandbox.Frontend.UI.Screens;
+using RL_Engine_Sandbox.Frontend.UI.UiManager;
 using SadConsole.Configuration;
-
-#endregion
-
 namespace RL_Engine_Sandbox;
-class Program {
-    static void Main(string[] args) {
 
-        int width = 150;
-        int height = 45;
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        var serviceProvider = ConfigureServices();
 
-        var services = new ServiceCollection()
-            .AddSingleton<IEventManager, EventManager>()
-            .AddSingleton<IEntityManager, EntityManager>()
-            .AddSingleton<IComponentManager, ComponentManager>()
-            .AddSingleton<IMovementSystem, MovementSystem>()
-            .AddSingleton<IRenderingSystem, RenderingSystem>()
-            .AddSingleton<ICollisionSystem, CollisionSystem>()
-            .AddSingleton<IEntityFactory, EntityFactory>()
-            .AddSingleton<IUiManager, UiManager>();
-            
-
-        
-        var serviceProvider = services.BuildServiceProvider();
-        var componentManager = serviceProvider.GetRequiredService<IComponentManager>();
-
-        
-        ServiceLocator.Register<IEntityFactory>(serviceProvider.GetRequiredService<IEntityFactory>());
-        ServiceLocator.Register<IComponentManager>(componentManager);
-        
-        
-        // Setup SadConsole Settings
+        // Setup basic game settings
+        var width = 150;
+        var height = 45;
         Settings.WindowTitle = "LikeRogue";
         Settings.ResizeMode = Settings.WindowResizeOptions.Fit;
-        var configuration = new Builder()
-            .SetScreenSize(width, height)
-            .SetStartingScreen(_ => new RootScreen(
-                serviceProvider.GetRequiredService<IEventManager>(),
-                serviceProvider.GetRequiredService<IEntityManager>(),
-                serviceProvider.GetRequiredService<IComponentManager>(),
-                serviceProvider.GetRequiredService<IUiManager>(),
-                width, height))
-            .OnStart(StartUp);
-        
+
+        var configuration = ConfigureGame(width, height, serviceProvider);
+
         // Run the game
         Game.Create(configuration);
         Game.Instance.Run();
         Game.Instance.Dispose();
     }
-    private static void StartUp(object? sender, GameHost e) {}
+
+    private static ServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection()
+            .AddSingleton<IEventManager, EventManager>()
+            .AddSingleton<IEntityManager, EntityManager>()
+            .AddSingleton<IComponentManager, ComponentManager>()
+            .AddSingleton<IMovementSystem, Movement_System>()
+            .AddSingleton<ICollisionSystem, Collision_System>()
+            .AddSingleton<IEntityFactory, EntityFactory>()
+            .AddSingleton<IUiManager, UiManager>()
+            .AddSingleton<IMapManagerFactory, MapManagerFactory>()
+            .AddTransient<IMapFactory, MapFactory>()
+            .AddSingleton<IMapManager, MapManager>()
+            .AddSingleton<IFovSystem, FOV_System>()
+            .AddSingleton<IMessageLogSystem, MessageLog_System>()
+            .AddSingleton<IInventoryManager, InventoryManager>()
+            .AddSingleton<IInputHandler, Input_System>()
+            .AddSingleton<IGameStateManager, GameStateManager>()
+            .AddSingleton<IRenderSystem, Render_System>()
+            .AddTransient<IMap, Map>()
+            .AddSingleton<GameLoop>()
+            .AddSingleton<RootScreen>();
+
+        services.AddTransient<IMapFactory>(provider => new MapFactory(150, 45));
+
+        return services.BuildServiceProvider();
+    }
+    
+
+    private static Builder ConfigureGame(int width, int height, ServiceProvider serviceProvider)
+    {
+        return new Builder()
+            .SetScreenSize(width, height)
+            .SetStartingScreen(_ => serviceProvider.GetRequiredService<RootScreen>())
+            .OnStart(StartUp);
+    }
+
+    private static void StartUp(object? sender, GameHost e)
+    {
+        // Additional startup logic can go here if needed.
+    }
 }
