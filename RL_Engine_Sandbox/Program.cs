@@ -53,7 +53,7 @@ internal class Program
             .AddSingleton<GameLoop>()
             .AddSingleton<RootScreen>();
 
-        services.AddTransient<IMapFactory>(provider => new MapFactory(150, 45));
+        services.AddTransient<IMapFactory>(provider => new MapFactory(120, 30));
 
         return services.BuildServiceProvider();
     }

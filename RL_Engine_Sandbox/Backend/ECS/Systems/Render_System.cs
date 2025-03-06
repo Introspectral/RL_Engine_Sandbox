@@ -8,16 +8,17 @@ public class Render_System(
     IMapManager mapManager,
     IComponentManager componentManager,
     IFovSystem fovSystem,
-    IEventManager eventManager,
-    long playerId)
+    IEventManager eventManager)
     : IRenderSystem
 {
+
+    public long PlayerId { get; set; } = 0;
     public Console Console { get; set; }
     public List<Entity> EntitiesToRender { get; set; } = [];
 
     public void RenderAll()
     {
-        var visibleTiles = fovSystem.ComputeFov(playerId);
+        var visibleTiles = fovSystem.ComputeFov(PlayerId);
         RenderMap(visibleTiles);
         RenderEntities(visibleTiles);
         Console.IsDirty = true;
@@ -76,4 +77,6 @@ public class Render_System(
     {
     
     }
+
+
 }

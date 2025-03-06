@@ -28,7 +28,7 @@ namespace RL_Engine_Sandbox.Backend.ECS.Manager
             Maps = new Dictionary<int, IMap>();
             for (int i = 1; i <= numberOfLevels; i++)
             {
-                var map = mapFactory.CreateMap(120,30);
+                var map = mapFactory.CreateMap();
                 Maps.Add(i, map);
             }
             CurrentLevel = 1; // Ensure we start at level 1, not 0!

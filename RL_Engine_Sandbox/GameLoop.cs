@@ -23,7 +23,7 @@ public class GameLoop : ScreenObject
     #region Properties
     private readonly IEventManager _eventManager;//
     private readonly GameStateManager _gameStateManager;//
-    private Render_System _renderSystem;//
+    private IRenderSystem _renderSystem;//
     private readonly IEntityManager _entityManager;//
     private readonly IComponentManager _componentManager;//
     private IMapManager _mapManager;//
@@ -52,7 +52,7 @@ public class GameLoop : ScreenObject
         IEventManager eventManager, IEntityManager entityManager, IComponentManager componentManager,
         IUiManager uiManager, IMovementSystem movementSystem, ICollisionSystem collisionSystem,
         IFovSystem fovSystem, IEntityFactory entityFactory, IMapManagerFactory mapManagerFactory,
-        IMapManager mapManager, IMessageLogSystem messageLogSystem, int width = 150, int height = 45)
+        IMapManager mapManager, IMessageLogSystem messageLogSystem, IRenderSystem renderSystem, int width = 150, int height = 45)
 
         #endregion
     {
@@ -71,7 +71,8 @@ public class GameLoop : ScreenObject
         _mapManagerFactory = mapManagerFactory;
         _mapManager = mapManager;
         _entitiesToRender = new List<Entity>();
-        _renderSystem = new Render_System(_mapManager, _componentManager, _fovSystem, _eventManager, 0);
+        _renderSystem = renderSystem;
+            //new Render_System(_mapManager, _componentManager, _fovSystem, _eventManager);
         _componentManager = componentManager;
         _messageLogSystem = messageLogSystem;
         _gameStateManager = new GameStateManager(eventManager);
@@ -162,11 +163,12 @@ public class GameLoop : ScreenObject
 
     private void InitializeRendering() {
         var gameAreaConsole = _uiManager.GetUiElement("gameAreaPanel");
-        _renderSystem =
-            new Render_System(_mapManager, _componentManager, _fovSystem, _eventManager, PlayerId)
-            {
-                Console = gameAreaConsole.GetContentConsole()
-            };
+        _renderSystem.Console = gameAreaConsole.GetConsole();
+            // new Render_System(_mapManager, _componentManager, _fovSystem, _eventManager)
+            // {
+            //     Console = gameAreaConsole.GetContentConsole()
+            // };
+        _renderSystem.PlayerId = _playerInfo.Id;
         foreach (var i in _mapManager.CurrentMap.Entities) _renderSystem.EntitiesToRender.Add(i);
     }
     #endregion
